@@ -1,0 +1,91 @@
+#
+# Developer of skript: ReFlexoo
+# Version: 1.2
+#
+# permission all: setgroup.all
+#
+
+	Grupo1: Master
+	Grupo2: Gerente
+	Grupo3: Admin 
+	Grupo4: Mod
+	Grupo5: Ajudante
+	Grupo6: Mvp+
+	Grupo7: Mvp
+	Grupo8: Vip+
+	Grupo9: Vip
+	Grupo10: Membro
+	Debug: Default
+
+on load:
+	set {Grupo1} to {@Grupo1}
+	set {Grupo2} to {@Grupo2}
+	set {Grupo3} to {@Grupo3}
+	set {Grupo4} to {@Grupo4}
+	set {Grupo5} to {@Grupo5}
+	set {Grupo6} to {@Grupo6}
+	set {Grupo7} to {@Grupo7}
+	set {Grupo8} to {@Grupo8}
+	set {Grupo9} to {@Grupo9}
+	set {Grupo10} to {@Grupo10}
+	set {Debug} to {@Debug}
+
+command /setgroup [<text>]:
+	trigger:
+		if player has permission "setgroup.all":
+			if arg 1 is not set:
+				invoke "Setgroup.ajuda" from player
+				stop
+			if arg 1 is "ajuda":
+				invoke "Setgroup.ajuda" from player
+				stop
+			if arg 1 is set:
+				if arg 2 is "{@Grupo1}" or {@Grupo2} or {@Grupo3} or {@Grupo4} or {@Grupo5} or {Grupo6} or {@Grupo7} or {@Grupo8} or {@Grupo9} or {@Grupo10}:
+					set {Menu.%player%} to arg 2
+					send "&2• &aProcurando Jogador..."
+					wait 2 seconds
+					invoke "MenuEvent" from player
+					stop
+				else:
+					send "&cErro! grupo não encontrado."
+					stop
+			else:
+				send "&cErro! comando invalido."
+				stop
+		else:
+			send "&cErro! você não possui permissão para usar este comando."
+			stop
+sub "ConfirmeEvent":
+	set {_p} to parameter 1
+	if {Menu.%{_p}%} is set:
+		send "&2• &aGrupo setado com sucesso!" to {_p}
+		make console execute command "lp user %arg 1% parent set %arg 2%"
+		if "plugins/skript/scripts/rTags" exists:
+			delete {permission.global.%{_p}%}
+			set {permission.global.%{_p}%} to "%arg 2%"
+			delete {permission.%{_p}%}
+			set {permission.%{_p}%} to "%arg 2%"
+			stop
+		delete {Menu.%{_p}%}
+		stop
+sub "MenuEvent":
+	set {_p} to parameter 1
+	open chest with 3 rows named "&8Confirmar" to {_p}
+	wait 0.2 seconds
+	if {Menu.%{_p}%} is set:
+		format slot 10 of {_p} with 351:10 named "&aAceitar" with lore "&7Clique aqui parar confirmar" to close then run [invoke "ConfirmeEvent" from {_p}]
+	format slot 14 of {_p} with rose red named "&cNegar" with lore "&7Clique aqui parar confirmar" to close then run [invoke "NegarEvent" from {_p}]
+	stop
+sub "Setgroup.ajuda":
+	set {_p} to parameter 1
+	send "" to {_p}
+	send "&8- &2Ajuda &8[ 1/1 ]" to {_p}
+	send "" to {_p}
+	send "&8- &2/setgroup <Jogador> <Grupo>" to {_p}
+	send "" to {_p}
+	stop
+sub "NegarEvent":
+	set {_p} to parameter 1
+	delete {Menu.%{_p}%}
+	send "&2• &cAção negada." to {_p}
+	stop
